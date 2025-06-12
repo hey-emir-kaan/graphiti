@@ -14,18 +14,22 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from neo4j import AsyncDriver
 from pydantic import BaseModel, ConfigDict
 
 from graphiti_core.cross_encoder import CrossEncoderClient
 from graphiti_core.embedder import EmbedderClient
 from graphiti_core.llm_client import LLMClient
+from graphiti_core.datastores import GraphStore
 
 
 class GraphitiClients(BaseModel):
-    driver: AsyncDriver
+    store: GraphStore
     llm_client: LLMClient
     embedder: EmbedderClient
     cross_encoder: CrossEncoderClient
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    @property
+    def driver(self):
+        return self.store.driver
