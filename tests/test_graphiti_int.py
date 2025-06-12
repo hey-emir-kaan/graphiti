@@ -24,6 +24,7 @@ from dotenv import load_dotenv
 
 from graphiti_core.edges import EntityEdge, EpisodicEdge
 from graphiti_core.graphiti import Graphiti
+from graphiti_core.datastores import Neo4jGraphStore
 from graphiti_core.helpers import semaphore_gather
 from graphiti_core.nodes import EntityNode, EpisodicNode
 from graphiti_core.search.search_helpers import search_results_to_context_string
@@ -63,7 +64,9 @@ def setup_logging():
 @pytest.mark.asyncio
 async def test_graphiti_init():
     logger = setup_logging()
-    graphiti = Graphiti(NEO4J_URI, NEO4j_USER, NEO4j_PASSWORD)
+    store = Neo4jGraphStore()
+    await store.connect(NEO4J_URI, NEO4j_USER, NEO4j_PASSWORD)
+    graphiti = Graphiti(store)
 
     results = await graphiti.search_(query='Who is the user?')
 
@@ -76,7 +79,9 @@ async def test_graphiti_init():
 
 @pytest.mark.asyncio
 async def test_graph_integration():
-    client = Graphiti(NEO4J_URI, NEO4j_USER, NEO4j_PASSWORD)
+    store = Neo4jGraphStore()
+    await store.connect(NEO4J_URI, NEO4j_USER, NEO4J_PASSWORD)
+    client = Graphiti(store)
     embedder = client.embedder
     driver = client.driver
 
